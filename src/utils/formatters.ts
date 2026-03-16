@@ -201,12 +201,14 @@ export function formatBackup(backup: DokployBackup): string {
   Keep Latest: ${backup.keepLatestCount ?? "unlimited"}`
 }
 
-export function formatSshKey(sshKey: DokploySshKey): string {
-  const pubKeyPreview = sshKey.publicKey ? sshKey.publicKey.substring(0, 40) + "..." : "N/A"
-  return `- **${sshKey.name}** (ID: ${sshKey.sshKeyId})
-  Description: ${sshKey.description || "None"}
+export function formatSshKey(sshKey: DokploySshKey | null | undefined, fallback?: Partial<DokploySshKey>): string {
+  const key = sshKey && sshKey.sshKeyId ? sshKey : { ...fallback, ...sshKey } as DokploySshKey
+  if (!key || !key.name) return "SSH key operation completed (no details returned by API)."
+  const pubKeyPreview = key.publicKey ? key.publicKey.substring(0, 40) + "..." : "N/A"
+  return `- **${key.name}** (ID: ${key.sshKeyId ?? "N/A"})
+  Description: ${key.description || "None"}
   Public Key: ${pubKeyPreview}
-  Created: ${formatDate(sshKey.createdAt)}`
+  Created: ${formatDate(key.createdAt)}`
 }
 
 export function formatSshKeyList(sshKeys: DokploySshKey[]): string {

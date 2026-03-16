@@ -35,7 +35,7 @@ export function registerSshKeyTools(server: FastMCP) {
             organizationId,
             ...(args.description && { description: args.description }),
           })
-          return `# SSH Key Created\n\n${formatSshKey(sshKey)}`
+          return `# SSH Key Created\n\n${formatSshKey(sshKey, { name: args.name!, publicKey: args.publicKey, description: args.description })}`
         }
         case "list": {
           const sshKeys = await client.get<DokploySshKey[]>("sshKey.all")
@@ -63,7 +63,7 @@ export function registerSshKeyTools(server: FastMCP) {
             type: args.type ?? "ed25519",
             organizationId,
           })
-          return `# SSH Key Generated\n\n${formatSshKey(result)}`
+          return `# SSH Key Generated\n\n${formatSshKey(result, { name: `Generated ${args.type ?? "ed25519"} key` })}`
         }
       }
     },
