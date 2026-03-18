@@ -4,7 +4,7 @@ import { z } from "zod"
 import { getDokployClient } from "../client/dokploy-client"
 import type { RequestBody } from "../generated"
 import type { DokployApplication } from "../types"
-import { formatApplication } from "../utils/formatters"
+import { formatApplication, normalizeMultilineString } from "../utils/formatters"
 
 const ACTIONS = [
   "create",
@@ -168,7 +168,7 @@ export function registerApplicationTools(server: FastMCP) {
           await client.post("application.saveEnvironment", {
             applicationId: args.applicationId!,
             createEnvFile: args.createEnvFile ?? false,
-            ...(args.env !== undefined && { env: args.env }),
+            ...(args.env !== undefined && { env: normalizeMultilineString(args.env) }),
             ...(args.buildArgs !== undefined && { buildArgs: args.buildArgs }),
           })
           return `Environment saved for application ${args.applicationId}.`
@@ -188,7 +188,7 @@ export function registerApplicationTools(server: FastMCP) {
           if (args.traefikConfig) {
             await client.post("application.updateTraefikConfig", {
               applicationId: args.applicationId!,
-              traefikConfig: args.traefikConfig,
+              traefikConfig: normalizeMultilineString(args.traefikConfig),
             } satisfies RequestBody<"application-updateTraefikConfig">)
             return `Traefik config updated for application ${args.applicationId}.`
           }

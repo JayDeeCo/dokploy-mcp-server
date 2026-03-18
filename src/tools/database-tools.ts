@@ -5,7 +5,7 @@ import { getDokployClient } from "../client/dokploy-client"
 import type { RequestBody } from "../generated"
 import type { DatabaseType, DokployDatabase } from "../types"
 import { DB_ID_FIELDS, DB_TYPES } from "../types"
-import { formatDatabase } from "../utils/formatters"
+import { formatDatabase, normalizeMultilineString } from "../utils/formatters"
 
 const dbTypeSchema = z.enum(DB_TYPES).describe("postgres, mysql, mariadb, mongo, or redis")
 
@@ -139,7 +139,7 @@ export function registerDatabaseTools(server: FastMCP) {
         case "saveEnvironment": {
           await client.post(`${dbType}.saveEnvironment`, {
             ...dbBody(dbType, args.databaseId!),
-            ...(args.env !== undefined && { env: args.env }),
+            ...(args.env !== undefined && { env: normalizeMultilineString(args.env) }),
           })
           return `Environment saved for database ${args.databaseId}.`
         }

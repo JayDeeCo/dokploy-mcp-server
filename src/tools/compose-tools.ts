@@ -4,7 +4,7 @@ import { z } from "zod"
 import { getDokployClient } from "../client/dokploy-client"
 import type { RequestBody } from "../generated"
 import type { DokployCompose } from "../types"
-import { formatCompose } from "../utils/formatters"
+import { formatCompose, normalizeMultilineString } from "../utils/formatters"
 
 const ACTIONS = [
   "create",
@@ -76,7 +76,7 @@ export function registerComposeTools(server: FastMCP) {
             environmentId: args.environmentId!,
             ...(args.description && { description: args.description }),
             ...(args.composeType && { composeType: args.composeType }),
-            ...(args.composeFile && { composeFile: args.composeFile }),
+            ...(args.composeFile && { composeFile: normalizeMultilineString(args.composeFile) }),
             ...(args.serverId && { serverId: args.serverId }),
           })
           return `# Compose Created\n\n${formatCompose(compose)}`
@@ -106,6 +106,9 @@ export function registerComposeTools(server: FastMCP) {
           ] as const
           for (const key of updateFields) {
             if (args[key] !== undefined) body[key] = args[key]
+          }
+          for (const key of ["composeFile", "env"] as const) {
+            if (typeof body[key] === "string") body[key] = normalizeMultilineString(body[key] as string)
           }
           await client.post("compose.update", body as RequestBody<"compose-update">)
           return `Compose ${args.composeId} updated.`

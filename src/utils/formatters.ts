@@ -1,3 +1,12 @@
+/**
+ * Normalize literal escape sequences in multi-line string fields (composeFile, env, traefikConfig).
+ * MCP tool parameters may arrive with literal `\n` / `\t` text instead of actual newlines/tabs.
+ */
+export function normalizeMultilineString(value: string): string {
+  if (value.includes("\n")) return value
+  return value.replace(/\\n/g, "\n").replace(/\\t/g, "\t")
+}
+
 import type {
   DokployApplication,
   DokployBackup,
